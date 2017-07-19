@@ -3,6 +3,9 @@
 grpc-resolver
 ==============
 
+.. image:: https://travis-ci.org/justdoit0823/grpc-resolver.svg?branch=master
+    :target: https://travis-ci.org/justdoit0823/grpc-resolver
+
 
 A simple Python gRPC service registry and resolver, is compatible for Python 2 and 3.
 
