@@ -1,0 +1,17 @@
+*~
+
+*.pyc
+
+__pycache__/*
+
+.eggs/*
+
+*egg-info/*
+
+build/*
+
+dist/*
+
+.cache/*
+
+.tox/*

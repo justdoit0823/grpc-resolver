@@ -1,0 +1,31 @@
+
+syntax = "proto3";
+
+package grpcresolver.hello;
+
+
+service Hello {
+
+  rpc Greeter(HelloRequest) returns (HelloResponse) {}
+
+  rpc GreeterResponseStream(HelloRequest) returns (stream HelloResponse) {}
+
+  rpc StreamGreeter(stream HelloRequest) returns (HelloResponse) {}
+
+  rpc StreamGreeterResponseStream(stream HelloRequest) returns (stream HelloResponse) {}
+
+}
+
+
+message HelloRequest {
+
+  string message = 1;
+
+}
+
+
+message HelloResponse {
+
+  string message = 1;
+
+}
