@@ -4,7 +4,7 @@ grpc-resolver
 ==============
 
 
-A simple Python gRPC service registry and resolver.
+A simple Python gRPC service registry and resolver, is compatible for Python 2 and 3.
 
 Now it only supports Etcd as configuration storage backend, but actually can support any storage backend.
 
@@ -24,7 +24,7 @@ Install
 
 .. code-block:: shell
 
-  $ pip install git+https://gitlab.com/yusenbin/grpc-resolver
+  $ pip install git+https://github.com/justdoit0823/grpc-resolver
 
 
 -----------
