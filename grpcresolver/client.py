@@ -17,12 +17,19 @@ class EtcdClient(object):
         grpc.StatusCode.RESOURCE_EXHAUSTED)
 
     def __init__(self, etcd_host, etcd_port):
-        client = etcd3.client(etcd_host, etcd_port)
-        members = tuple(client.members)
+        self._host = etcd_host
+        self._port = etcd_port
         self._client_idx = 0
-        self._cluster = tuple(member._etcd_client for member in members)
+        self._cluster = None
 
     def call(self, method, *args, **kwargs):
+        """Etcd operation gateway method."""
+        if self._cluster is None:
+            # Lazy initialize etcd client
+            client = etcd3.client(self._host, self._port)
+            self._cluster = tuple(
+                member._etcd_client for member in client.members)
+
         try_count = len(self._cluster)
         while try_count > 0:
             client = self._cluster[self._client_idx]
