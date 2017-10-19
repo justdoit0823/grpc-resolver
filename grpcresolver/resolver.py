@@ -6,8 +6,8 @@ import six
 import threading
 import time
 
+from grpcresolver.address import PlainAddress
 from grpcresolver.client import EtcdClient
-from grpcresolver.compat import b2str
 
 
 __all__ = ['EtcdServiceResolver']
@@ -34,7 +34,7 @@ class EtcdServiceResolver(ServiceResolver):
 
     def __init__(
             self, etcd_host=None, etcd_port=None, etcd_client=None,
-            start_listener=True, listen_timeout=5):
+            start_listener=True, listen_timeout=5, addr_cls=None):
         """Initialize etcd service resolver.
 
         :param etcd_host: (optional) etcd node host for :class:`client.EtcdClient`.
@@ -42,6 +42,7 @@ class EtcdServiceResolver(ServiceResolver):
         :param etcd_client: (optional) A :class:`client.EtcdClient` object.
         :param start_listener: (optional) Indicate whether starting the resolver listen thread.
         :param listen_timeout: (optional) Resolver thread listen timeout.
+        :param addr_cls: (optional) address format class.
 
         """
         self._listening = False
@@ -52,6 +53,7 @@ class EtcdServiceResolver(ServiceResolver):
         self._client = etcd_client if etcd_client else EtcdClient(
             etcd_host, etcd_port)
         self._names = {}
+        self._addr_cls = addr_cls or PlainAddress
 
         if start_listener:
             self.start_listener()
@@ -80,8 +82,17 @@ class EtcdServiceResolver(ServiceResolver):
         """
         keys = self._client.get_prefix(name)
         vals = []
+        plain = True
+        if isinstance(self._addr_cls, PlainAddress):
+            plain = False
+
         for val, metadata in keys:
-            vals.append(b2str(val))
+            if plain:
+                vals.append(self._addr_cls.from_value(val))
+            else:
+                add, addr = self._addr_cls.from_value(val)
+                if add:
+                    vals.append(addr)
 
         return vals
 

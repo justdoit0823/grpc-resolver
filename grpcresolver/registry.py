@@ -4,6 +4,7 @@
 import abc
 import six
 
+from grpcresolver.address import PlainAddress
 from grpcresolver.client import EtcdClient
 
 
@@ -66,18 +67,21 @@ class EtcdServiceRegistry(ServiceRegistry):
         """Return service's key in etcd."""
         return '/'.join((service_name, service_addr))
 
-    def register(self, service_names, service_addr, service_ttl):
+    def register(self, service_names, service_addr, service_ttl, addr_cls=None):
         """Register gRPC services with the same address.
 
         :param service_names: A collection of gRPC service name.
         :param service_addr: gRPC server address.
         :param service_ttl: gRPC service ttl(seconds).
+        :param addr_cls: format class of gRPC service address.
 
         """
         lease = self.get_lease(service_addr, service_ttl)
+        addr_cls = addr_cls or PlainAddress
         for service_name in service_names:
             key = self._form_service_key(service_name, service_addr)
-            self._client.put(key, service_addr, lease=lease)
+            addr_val = addr_cls(service_addr).add_value()
+            self._client.put(key, addr_val, lease=lease)
             try:
                 self._services[service_addr].add(service_name)
             except KeyError:
@@ -97,14 +101,23 @@ class EtcdServiceRegistry(ServiceRegistry):
                 self.register(
                     self._services[service_addr], service_addr, lease.ttl)
 
-    def unregister(self, service_names, service_addr):
+    def unregister(self, service_names, service_addr, addr_cls=None):
         """Unregister gRPC services with the same address.
 
         :param service_names: A collection of gRPC service name.
         :param service_addr: gRPC server address.
 
         """
+        addr_cls = addr_cls or PlainAddress
+        etcd_delete = True
+        if not isinstance(addr_cls, PlainAddress):
+            etcd_delete = False
+
         for service_name in service_names:
             key = self._form_service_key(service_name, service_addr)
-            self._client.delete(key)
+            if etcd_delete:
+                self._client.delete(key)
+            else:
+                self._client.put(addr_cls(service_addr).delete_value())
+
             self._services.get(service_addr, {}).discard(service_name)
