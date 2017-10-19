@@ -110,7 +110,7 @@ class EtcdServiceRegistry(ServiceRegistry):
         """
         addr_cls = addr_cls or PlainAddress
         etcd_delete = True
-        if not isinstance(addr_cls, PlainAddress):
+        if addr_cls != PlainAddress:
             etcd_delete = False
 
         for service_name in service_names:

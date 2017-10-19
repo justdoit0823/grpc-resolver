@@ -83,7 +83,7 @@ class EtcdServiceResolver(ServiceResolver):
         keys = self._client.get_prefix(name)
         vals = []
         plain = True
-        if not isinstance(self._addr_cls, PlainAddress):
+        if self._addr_cls != PlainAddress:
             plain = False
 
         for val, metadata in keys:
