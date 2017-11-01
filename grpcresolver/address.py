@@ -26,7 +26,8 @@ class Address(six.with_metaclass(abc.ABCMeta)):
     def delete_value(self):
         raise NotImplementedError
 
-    @abc.abstractclassmethod
+    @classmethod
+    @abc.abstractmethod
     def from_value(cls, val, deserializer=None):
         raise NotImplementedError
 
