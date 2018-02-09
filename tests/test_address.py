@@ -37,17 +37,18 @@ def test_from_plain_address(addr, exp_addr):
 )
 def test_to_json_address(val):
     assert JsonAddress(val).add_value() == json.dumps({
-        'Op': 0, 'Addr': val, 'Metadata': {}})
-    assert JsonAddress(val).delete_value() == json.dumps({
-        'Op': 1, 'Addr': val, 'Metadata': {}})
+        'Op': 0, 'Addr': val, 'Metadata': "{}"})
+    assert JsonAddress(
+        val, metadata={'name': 'host1'}).delete_value() == json.dumps({
+            'Op': 1, 'Addr': val, 'Metadata': json.dumps({'name': 'host1'})})
 
 
 @pytest.mark.parametrize(
     'val, op, addr', (
-        (b'{"Op": 1, "Addr": "1.2.3.4", "Metadata": {}}', False, '1.2.3.4'),
-        (b'{"Op": 0, "Addr": "5.6.7.8", "Metadata": {}}', True, '5.6.7.8'),
-        (b'{"Op": 1, "Addr": "11.2.3.4", "Metadata": {}}', False, '11.2.3.4'),
-        (b'{"Op": 0, "Addr": "55.6.7.8", "Metadata": {}}', True, '55.6.7.8'),
+        (b'{"Op": 1, "Addr": "1.2.3.4", "Metadata": "{}"}', False, '1.2.3.4'),
+        (b'{"Op": 0, "Addr": "5.6.7.8", "Metadata": "{}"}', True, '5.6.7.8'),
+        (b'{"Op": 1, "Addr": "11.2.3.4", "Metadata": "{}"}', False, '11.2.3.4'),
+        (b'{"Op": 0, "Addr": "55.6.7.8", "Metadata": "{}"}', True, '55.6.7.8'),
     )
 )
 def test_from_json_address(val, op, addr):
