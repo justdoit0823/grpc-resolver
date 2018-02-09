@@ -4,7 +4,7 @@
 import abc
 import six
 
-from grpcresolver.address import PlainAddress
+from grpcresolver.address import PlainAddress, JsonAddress
 from grpcresolver.client import EtcdClient
 
 
@@ -67,20 +67,28 @@ class EtcdServiceRegistry(ServiceRegistry):
         """Return service's key in etcd."""
         return '/'.join((service_name, service_addr))
 
-    def register(self, service_names, service_addr, service_ttl, addr_cls=None):
+    def register(
+            self, service_names, service_addr, service_ttl, addr_cls=None,
+            metadata=None):
         """Register gRPC services with the same address.
 
         :param service_names: A collection of gRPC service name.
         :param service_addr: gRPC server address.
         :param service_ttl: gRPC service ttl(seconds).
         :param addr_cls: format class of gRPC service address.
+        :param metadata: extra meta data for JsonAddress.
 
         """
         lease = self.get_lease(service_addr, service_ttl)
         addr_cls = addr_cls or PlainAddress
         for service_name in service_names:
             key = self._form_service_key(service_name, service_addr)
-            addr_val = addr_cls(service_addr).add_value()
+            if addr_cls == JsonAddress:
+                addr_obj = addr_cls(service_addr, metadata=metadata)
+            else:
+                addr_obj = addr_cls(service_addr)
+
+            addr_val = addr_obj.add_value()
             self._client.put(key, addr_val, lease=lease)
             try:
                 self._services[service_addr].add(service_name)
