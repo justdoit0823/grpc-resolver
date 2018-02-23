@@ -35,7 +35,7 @@ setup(name='grpc-resolver',
       setup_requires=('pytest-runner',),
       install_requires=(
           # -*- Extra requirements: -*-
-          'grpcio>=1.3.0',
+          'grpcio>=1.3.0,<=1.8.0',
           'etcd3>=0.6.2',
           'six>=1.10.0'
       ),
@@ -46,5 +46,5 @@ setup(name='grpc-resolver',
       ),
       entry_points="""
       # -*- Entry points: -*-
-      """,
-      )
+      """
+)
